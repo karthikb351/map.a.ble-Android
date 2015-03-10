@@ -24,7 +24,7 @@ import timber.log.Timber;
  */
 public abstract class BeaconService implements BeaconConsumer {
 
-    private BeaconManager beaconManager;
+    public BeaconManager beaconManager;
     private Context ctx;
     private Bus mBus = BusProvider.getInstance();
 

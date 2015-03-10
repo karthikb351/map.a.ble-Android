@@ -44,6 +44,8 @@ public class Mapable extends Application {
             }
         };
 
+        mService.beaconManager.bind(mService);
+
         mBus.register(this); //listen for "global" events
     }
 

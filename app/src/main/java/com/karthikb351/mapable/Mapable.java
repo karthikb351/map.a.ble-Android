@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 
 import com.karthikb351.mapable.bus.BusProvider;
-import com.karthikb351.mapable.bus.events.BeaconFoundInRange;
+import com.karthikb351.mapable.bus.events.BeaconsFoundInRange;
 import com.karthikb351.mapable.service.BeaconService;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
+
+import org.altbeacon.beacon.Beacon;
 
 import timber.log.Timber;
 
@@ -73,7 +75,8 @@ public class Mapable extends Application {
 
 
     @Subscribe
-    void onBeaconFoundInRange(BeaconFoundInRange b){
-        Timber.d("The beacon I see is about "+b.getBeacon().getDistance()+" meters away.");
+    void onBeaconFoundInRange(BeaconsFoundInRange b){
+        for(Beacon beacon: b.getBeacons())
+        Timber.d("The beacon I see is about "+beacon.getDistance()+" meters away.");
     }
 }

@@ -1,12 +1,10 @@
 package com.karthikb351.mapable.service;
 
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.RemoteException;
 
 import com.karthikb351.mapable.bus.BusProvider;
-import com.karthikb351.mapable.bus.events.BeaconFoundInRange;
+import com.karthikb351.mapable.bus.events.BeaconsFoundInRange;
 import com.squareup.otto.Bus;
 
 import org.altbeacon.beacon.Beacon;
@@ -15,6 +13,7 @@ import org.altbeacon.beacon.BeaconManager;
 import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import timber.log.Timber;
@@ -45,7 +44,7 @@ public abstract class BeaconService implements BeaconConsumer {
             @Override
             public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
                 if (beacons.size() > 0) {
-                    mBus.post(new BeaconFoundInRange(beacons.iterator().next()));
+                    mBus.post(new BeaconsFoundInRange(new ArrayList<Beacon>(beacons)));
 
                 }
             }

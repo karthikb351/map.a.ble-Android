@@ -46,9 +46,15 @@ public class Mapable extends Application {
             }
         };
 
-        mService.beaconManager.bind(mService);
-
         mBus.register(this); //listen for "global" events
+    }
+
+    public void startBeaconService() {
+        mService.beaconManager.bind(mService);
+    }
+
+    public void stopBeaconService() {
+        mService.beaconManager.unbind(mService);
     }
 
     /** A tree which logs important information for crash reporting. */

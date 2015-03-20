@@ -5,17 +5,32 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.karthikb351.mapable.Mapable;
 import com.karthikb351.mapable.R;
 
 
 public class MainActivity extends ActionBarActivity {
 
+    Mapable app;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        app = (Mapable)getApplication();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        app.startBeaconService();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        app.stopBeaconService();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

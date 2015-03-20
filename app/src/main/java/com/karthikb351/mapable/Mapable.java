@@ -75,7 +75,7 @@ public class Mapable extends Application {
 
 
     @Subscribe
-    void onBeaconFoundInRange(BeaconsFoundInRange b){
+    public void onBeaconFoundInRange(BeaconsFoundInRange b){
         for(Beacon beacon: b.getBeacons())
         Timber.d("The beacon I see is about "+beacon.getDistance()+" meters away.");
     }

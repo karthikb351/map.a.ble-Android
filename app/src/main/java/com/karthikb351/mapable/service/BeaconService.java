@@ -43,6 +43,9 @@ public abstract class BeaconService implements BeaconConsumer {
         beaconManager.setRangeNotifier(new RangeNotifier() {
             @Override
             public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
+                Timber.d("Beacons found in range");
+                Timber.d("Number of beacons:"+beacons.size());
+                Timber.d("Beacon ID:"+(beacons.iterator().hasNext()?beacons.iterator().next().getBluetoothName()+beacons.iterator().next().getId1():"Empty List"));
                 if (beacons.size() > 0) {
                     mBus.post(new BeaconsFoundInRange(new ArrayList<Beacon>(beacons)));
 
@@ -51,6 +54,7 @@ public abstract class BeaconService implements BeaconConsumer {
         });
 
         try {
+            Timber.d("startRangingBeaconsInRegion");
             beaconManager.startRangingBeaconsInRegion(new Region("myRangingUniqueId", null, null, null));
         } catch (RemoteException e) {   }
     }

@@ -1,6 +1,8 @@
 package com.karthikb351.mapable.service;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.RemoteException;
 
 import com.karthikb351.mapable.bus.BusProvider;
@@ -27,13 +29,17 @@ public abstract class BeaconService implements BeaconConsumer {
     public BeaconManager beaconManager;
     private Context ctx;
     private Bus mBus = BusProvider.getInstance();
+    Handler handler;
 
     public BeaconService(Context ctx) {
+
+        Timber.tag("BeaconService");
         this.ctx = ctx;
         this.beaconManager = BeaconManager.getInstanceForApplication(ctx);
         this.beaconManager.getBeaconParsers().add(new BeaconParser().
                 setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24")); // iBeacon standard
-        Timber.tag("BeaconService");
+
+        handler = new Handler(Looper.getMainLooper()); // To send messages to the main thread
     }
 
     @Override
@@ -45,13 +51,15 @@ public abstract class BeaconService implements BeaconConsumer {
     public void onBeaconServiceConnect() {
         beaconManager.setRangeNotifier(new RangeNotifier() {
             @Override
-            public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
-                Timber.d("Beacons found in range");
-                Timber.d("Number of beacons:"+beacons.size());
-                Timber.d("Beacon ID:"+(beacons.iterator().hasNext()?beacons.iterator().next().getBluetoothName()+beacons.iterator().next().getId1():"Empty List"));
+            public void didRangeBeaconsInRegion(final Collection<Beacon> beacons, Region region) {
                 if (beacons.size() > 0) {
-                    mBus.post(new BeaconsFoundInRange(new ArrayList<Beacon>(beacons)));
 
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mBus.post(new BeaconsFoundInRange(new ArrayList<Beacon>(beacons)));
+                        }
+                    });
                 }
             }
         });

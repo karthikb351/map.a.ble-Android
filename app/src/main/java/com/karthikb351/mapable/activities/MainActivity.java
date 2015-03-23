@@ -1,5 +1,10 @@
 package com.karthikb351.mapable.activities;
 
+import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -32,6 +37,7 @@ public class MainActivity extends ActionBarActivity {
     List<Beacon> mBeaconList = new ArrayList<>();
     BeaconListAdapter mAdapter;
     ListView mBeaconListView;
+    TextView mBluetoothDisabledText;
     private Bus mBus = BusProvider.getInstance();
 
 
@@ -39,11 +45,13 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        app = (Mapable)getApplication();
-        mBeaconListView = (ListView)findViewById(R.id.beacons_list);
+        app = (Mapable) getApplication();
+        mBeaconListView = (ListView) findViewById(R.id.beacons_list);
+        mBluetoothDisabledText = (TextView) findViewById(R.id.bluetooth_disabled_text);
         mAdapter = new BeaconListAdapter();
         mBeaconListView.setAdapter(mAdapter);
-
+        checkBluetoothStatus();
+        registerReceiver(mReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
     }
 
     @Override
@@ -82,10 +90,10 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public class BeaconListAdapter extends ArrayAdapter<Beacon>{
+    public class BeaconListAdapter extends ArrayAdapter<Beacon> {
 
-        public BeaconListAdapter(){
-            super(getApplicationContext(),R.layout.beacon_item);
+        public BeaconListAdapter() {
+            super(getApplicationContext(), R.layout.beacon_item);
         }
 
         @Override
@@ -102,16 +110,16 @@ public class MainActivity extends ActionBarActivity {
         public View getView(int position, View convertView, ViewGroup parent) {
             View item = null;
             LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
-            item = inflater.inflate(R.layout.beacon_item,null);
+            item = inflater.inflate(R.layout.beacon_item, null);
 
-            TextView beaconId = (TextView)item.findViewById(R.id.beacon_id);
-            TextView beaconDistance = (TextView)item.findViewById(R.id.beacon_distance);
+            TextView beaconId = (TextView) item.findViewById(R.id.beacon_id);
+            TextView beaconDistance = (TextView) item.findViewById(R.id.beacon_distance);
 
             Beacon beacon = getItem(position);
 
-            if(beacon != null){
-                beaconId.setText(beacon.getId1()+"");
-                beaconDistance.setText(beacon.getDistance()+"");
+            if (beacon != null) {
+                beaconId.setText(beacon.getId1() + "");
+                beaconDistance.setText(beacon.getDistance() + "");
             }
 
             return item;
@@ -119,8 +127,45 @@ public class MainActivity extends ActionBarActivity {
     }
 
     @Subscribe
-    public void onBeaconFoundInRange(BeaconsFoundInRange b){
+    public void onBeaconFoundInRange(BeaconsFoundInRange b) {
         mBeaconList = b.getBeacons();
         mAdapter.notifyDataSetChanged();
     }
+
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
+                int i = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
+                if (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
+                        == BluetoothAdapter.STATE_OFF) {
+                    handleBluetoothDisabled();
+                } else if (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
+                        == BluetoothAdapter.STATE_ON) {
+                    mBeaconListView.setVisibility(View.VISIBLE);
+                    mBluetoothDisabledText.setVisibility(View.GONE);
+                    mAdapter.notifyDataSetChanged();
+                }
+                // Bluetooth is disconnected, do handling here
+            }
+
+        }
+
+    };
+
+    private void checkBluetoothStatus() {
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+            handleBluetoothDisabled();
+        }
+    }
+
+    private void handleBluetoothDisabled() {
+        app.stopBeaconService();
+        mBluetoothDisabledText.setVisibility(View.VISIBLE);
+        mBluetoothDisabledText.setText("Bluetooth is currently disabled. PLease turn it on to start ranging");
+        mBeaconListView.setVisibility(View.GONE);
+    }
+
 }

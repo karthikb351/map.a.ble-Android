@@ -1,6 +1,10 @@
 package com.karthikb351.mapable.service;
 
+import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.RemoteException;
@@ -40,6 +44,7 @@ public abstract class BeaconService implements BeaconConsumer {
                 setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24")); // iBeacon standard
 
         handler = new Handler(Looper.getMainLooper()); // To send messages to the main thread
+        getApplicationContext().registerReceiver(mReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
     }
 
     @Override
@@ -69,6 +74,26 @@ public abstract class BeaconService implements BeaconConsumer {
             beaconManager.startRangingBeaconsInRegion(new Region("myRangingUniqueId", null, null, null));
         } catch (RemoteException e) {   }
     }
+
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        public void onReceive (Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
+                if(intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
+                        == BluetoothAdapter.STATE_OFF){
+                    beaconManager.unbind(BeaconService.this);
+                }
+                else if(intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
+                        == BluetoothAdapter.STATE_ON){
+                    beaconManager.bind(BeaconService.this);
+                }
+                // Bluetooth is disconnected, do handling here
+            }
+
+        }
+
+    };
 
 
 }

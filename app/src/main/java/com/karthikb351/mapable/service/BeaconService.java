@@ -38,7 +38,6 @@ public abstract class BeaconService implements BeaconConsumer {
         this.beaconManager = BeaconManager.getInstanceForApplication(ctx);
         this.beaconManager.getBeaconParsers().add(new BeaconParser().
                 setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24")); // iBeacon standard
-
         handler = new Handler(Looper.getMainLooper()); // To send messages to the main thread
     }
 
@@ -53,7 +52,6 @@ public abstract class BeaconService implements BeaconConsumer {
             @Override
             public void didRangeBeaconsInRegion(final Collection<Beacon> beacons, Region region) {
                 if (beacons.size() > 0) {
-
                     handler.post(new Runnable() {
                         @Override
                         public void run() {

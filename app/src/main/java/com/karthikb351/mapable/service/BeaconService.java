@@ -73,6 +73,7 @@ public class BeaconService extends Service {
                 } else if (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
                         == BluetoothAdapter.STATE_ON) {
                     beaconManager.bind(mConsumer);
+
                 }
                 // Bluetooth is disconnected, do handling here
             }
@@ -81,6 +82,7 @@ public class BeaconService extends Service {
 
     };
 
+    
     public void startBeaconConsumer() {
         beaconManager.bind(mConsumer);
     }
@@ -149,4 +151,8 @@ public class BeaconService extends Service {
         mBus.unregister(this);
         Timber.d("Service destroyed");
     }
+    
 }
+
+
+

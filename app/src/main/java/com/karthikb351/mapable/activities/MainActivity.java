@@ -14,13 +14,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.location.Location;
+
+
 
 import com.karthikb351.mapable.adapters.BeaconListAdapter;
+import com.karthikb351.mapable.Mapable;
 import com.karthikb351.mapable.R;
 import com.karthikb351.mapable.bus.BusProvider;
 import com.karthikb351.mapable.bus.events.BeaconServiceState;
 import com.karthikb351.mapable.bus.events.BeaconsFoundInRange;
+
 import com.karthikb351.mapable.service.BeaconService;
+
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -32,11 +38,16 @@ import java.util.List;
 
 public class MainActivity extends ActionBarActivity {
 
+    Mapable app;
     List<Beacon> mBeaconList = new ArrayList<>();
+    Location mDeviceLocation;
     BeaconListAdapter mAdapter;
     RecyclerView mBeaconListView;
     TextView mBluetoothDisabledText;
+    RecyclerView mEventView;
     private Bus mBus = BusProvider.getInstance();
+
+
 
 
     @Override
@@ -46,11 +57,14 @@ public class MainActivity extends ActionBarActivity {
         mBeaconListView = (RecyclerView) findViewById(R.id.beacons_list);
         LinearLayoutManager llm = new LinearLayoutManager(this);
         llm.setOrientation(LinearLayoutManager.VERTICAL);
-        mBeaconListView.setLayoutManager(llm);
+        
+        app = (Mapable)getApplication();
 
+        mBeaconListView.setLayoutManager(llm);
         mBluetoothDisabledText = (TextView) findViewById(R.id.bluetooth_disabled_text);
         mAdapter = new BeaconListAdapter(mBeaconList);
         mBeaconListView.setAdapter(mAdapter);
+        
         checkBluetoothStatus();
 
     }
@@ -154,4 +168,7 @@ public class MainActivity extends ActionBarActivity {
         mBus.post(new BeaconServiceState(false));
     }
 
+
+
 }
+

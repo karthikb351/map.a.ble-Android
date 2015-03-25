@@ -16,10 +16,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.karthikb351.mapable.Mapable;
 import com.karthikb351.mapable.R;
 import com.karthikb351.mapable.bus.BusProvider;
+import com.karthikb351.mapable.bus.events.BeaconServiceState;
 import com.karthikb351.mapable.bus.events.BeaconsFoundInRange;
+import com.karthikb351.mapable.service.BeaconService;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -28,12 +29,9 @@ import org.altbeacon.beacon.Beacon;
 import java.util.ArrayList;
 import java.util.List;
 
-import timber.log.Timber;
-
 
 public class MainActivity extends ActionBarActivity {
 
-    Mapable app;
     List<Beacon> mBeaconList = new ArrayList<>();
     BeaconListAdapter mAdapter;
     ListView mBeaconListView;
@@ -45,7 +43,6 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        app = (Mapable) getApplication();
         mBeaconListView = (ListView) findViewById(R.id.beacons_list);
         mBluetoothDisabledText = (TextView) findViewById(R.id.bluetooth_disabled_text);
         mAdapter = new BeaconListAdapter();
@@ -57,14 +54,14 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        app.startBeaconService();
         mBus.register(this);
+        startBeaconService();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        app.stopBeaconService();
+        stopBeaconService();
         mBus.unregister(this);
     }
 
@@ -162,10 +159,26 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void handleBluetoothDisabled() {
-        app.stopBeaconService();
+        stopBeaconRanging();
         mBluetoothDisabledText.setVisibility(View.VISIBLE);
         mBluetoothDisabledText.setText("Bluetooth is currently disabled. PLease turn it on to start ranging");
         mBeaconListView.setVisibility(View.GONE);
+    }
+
+    private void startBeaconRanging(){
+        mBus.post(new BeaconServiceState(true));
+    }
+
+    private void startBeaconService(){
+        startService(new Intent(this,BeaconService.class));
+    }
+
+    private void stopBeaconService(){
+        stopService(new Intent(this,BeaconService.class));
+    }
+
+    private void stopBeaconRanging(){
+        mBus.post(new BeaconServiceState(false));
     }
 
 }

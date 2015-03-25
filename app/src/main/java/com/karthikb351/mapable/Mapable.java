@@ -19,7 +19,6 @@ import timber.log.Timber;
  */
 public class Mapable extends Application {
     private Bus mBus = BusProvider.getInstance();
-    private BeaconService mService;
 
     @Override
     public void onCreate() {
@@ -34,27 +33,7 @@ public class Mapable extends Application {
         Timber.tag("MapableApplication");
         Timber.d("Application Created");
 
-        mService = new BeaconService(Mapable.this) {
-
-            @Override
-            public void unbindService(ServiceConnection serviceConnection) {
-                Mapable.this.unbindService(serviceConnection);
-            }
-            @Override
-            public boolean bindService(Intent intent, ServiceConnection serviceConnection, int i) {
-                return Mapable.this.bindService(intent, serviceConnection, i);
-            }
-        };
-
         mBus.register(this); //listen for "global" events
-    }
-
-    public void startBeaconService() {
-        mService.beaconManager.bind(mService);
-    }
-
-    public void stopBeaconService() {
-        mService.beaconManager.unbind(mService);
     }
 
     /** A tree which logs important information for crash reporting. */
@@ -80,9 +59,4 @@ public class Mapable extends Application {
 
 
 
-    @Subscribe
-    public void onBeaconFoundInRange(BeaconsFoundInRange b){
-        for(Beacon beacon: b.getBeacons())
-        Timber.d("The beacon I see is about "+beacon.getDistance()+" meters away.");
-    }
 }

@@ -20,6 +20,7 @@ import com.karthikb351.mapable.R;
 import com.karthikb351.mapable.bus.BusProvider;
 import com.karthikb351.mapable.bus.events.BeaconServiceState;
 import com.karthikb351.mapable.bus.events.BeaconsFoundInRange;
+import com.karthikb351.mapable.models.DistanceBucket;
 import com.karthikb351.mapable.service.BeaconService;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -111,12 +112,17 @@ public class MainActivity extends ActionBarActivity {
 
             TextView beaconId = (TextView) item.findViewById(R.id.beacon_id);
             TextView beaconDistance = (TextView) item.findViewById(R.id.beacon_distance);
+            TextView distanceBucketText = (TextView) item.findViewById(R.id.bucket);
 
             Beacon beacon = getItem(position);
+
+            DistanceBucket bucket = DistanceBucket.getDistanceBucketForDistance(beacon.getDistance());
 
             if (beacon != null) {
                 beaconId.setText(beacon.getId1() + "");
                 beaconDistance.setText(beacon.getDistance() + "");
+                if (bucket != null)
+                    distanceBucketText.setText(bucket.toString());
             }
 
             return item;
@@ -165,19 +171,19 @@ public class MainActivity extends ActionBarActivity {
         mBeaconListView.setVisibility(View.GONE);
     }
 
-    private void startBeaconRanging(){
+    private void startBeaconRanging() {
         mBus.post(new BeaconServiceState(true));
     }
 
-    private void startBeaconService(){
-        startService(new Intent(this,BeaconService.class));
+    private void startBeaconService() {
+        startService(new Intent(this, BeaconService.class));
     }
 
-    private void stopBeaconService(){
-        stopService(new Intent(this,BeaconService.class));
+    private void stopBeaconService() {
+        stopService(new Intent(this, BeaconService.class));
     }
 
-    private void stopBeaconRanging(){
+    private void stopBeaconRanging() {
         mBus.post(new BeaconServiceState(false));
     }
 

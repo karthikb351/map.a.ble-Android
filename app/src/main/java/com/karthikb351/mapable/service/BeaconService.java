@@ -33,13 +33,13 @@ import timber.log.Timber;
 /**
  * Created by karthikbalakrishnan on 10/03/15.
  */
-public class BeaconService extends Service{
+public class BeaconService extends Service {
 
     public BeaconManager beaconManager;
     private Bus mBus = BusProvider.getInstance();
     Handler handler;
 
-    public BeaconService(){
+    public BeaconService() {
 
     }
 
@@ -63,16 +63,15 @@ public class BeaconService extends Service{
     }
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        public void onReceive (Context context, Intent intent) {
+        public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
 
             if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-                if(intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
-                        == BluetoothAdapter.STATE_OFF){
+                if (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
+                        == BluetoothAdapter.STATE_OFF) {
                     beaconManager.unbind(mConsumer);
-                }
-                else if(intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
-                        == BluetoothAdapter.STATE_ON){
+                } else if (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
+                        == BluetoothAdapter.STATE_ON) {
                     beaconManager.bind(mConsumer);
                 }
                 // Bluetooth is disconnected, do handling here
@@ -91,11 +90,10 @@ public class BeaconService extends Service{
     }
 
     @Subscribe
-    public void serviceStateChanged(BeaconServiceState state){
-        if(state.isActive()) {
+    public void serviceStateChanged(BeaconServiceState state) {
+        if (state.isActive()) {
             startBeaconConsumer();
-        }
-        else {
+        } else {
             stopBeaconConsumer();
         }
     }
@@ -127,7 +125,8 @@ public class BeaconService extends Service{
             try {
                 Timber.d("startRangingBeaconsInRegion");
                 beaconManager.startRangingBeaconsInRegion(new Region("myRangingUniqueId", null, null, null));
-            } catch (RemoteException e) {   }
+            } catch (RemoteException e) {
+            }
         }
 
         @Override
@@ -139,7 +138,7 @@ public class BeaconService extends Service{
         @Override
         public boolean bindService(Intent intent, ServiceConnection serviceConnection, int i) {
             Timber.d("binding cons");
-            return BeaconService.this.bindService(intent,serviceConnection,i);
+            return BeaconService.this.bindService(intent, serviceConnection, i);
         }
     };
 

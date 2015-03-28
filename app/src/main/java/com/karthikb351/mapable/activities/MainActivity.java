@@ -7,6 +7,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,6 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.karthikb351.mapable.Adapters.BeaconListAdapter;
 import com.karthikb351.mapable.R;
 import com.karthikb351.mapable.bus.BusProvider;
 import com.karthikb351.mapable.bus.events.BeaconServiceState;
@@ -35,7 +39,7 @@ public class MainActivity extends ActionBarActivity {
 
     List<Beacon> mBeaconList = new ArrayList<>();
     BeaconListAdapter mAdapter;
-    ListView mBeaconListView;
+    RecyclerView mBeaconListView;
     TextView mBluetoothDisabledText;
     private Bus mBus = BusProvider.getInstance();
 
@@ -44,25 +48,31 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mBeaconListView = (ListView) findViewById(R.id.beacons_list);
+        mBeaconListView = (RecyclerView) findViewById(R.id.beacons_list);
+        LinearLayoutManager llm = new LinearLayoutManager(this);
+        llm.setOrientation(LinearLayoutManager.VERTICAL);
+        mBeaconListView.setLayoutManager(llm);
+
         mBluetoothDisabledText = (TextView) findViewById(R.id.bluetooth_disabled_text);
-        mAdapter = new BeaconListAdapter();
+        mAdapter = new BeaconListAdapter(this.getApplicationContext(), mBeaconList);
         mBeaconListView.setAdapter(mAdapter);
         checkBluetoothStatus();
-        registerReceiver(mReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         mBus.register(this);
+        registerReceiver(mReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
         startBeaconService();
     }
 
-    @Override
+   @Override
     protected void onStop() {
         super.onStop();
         stopBeaconService();
+        unregisterReceiver(mReceiver);
         mBus.unregister(this);
     }
 
@@ -88,50 +98,12 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public class BeaconListAdapter extends ArrayAdapter<Beacon> {
-
-        public BeaconListAdapter() {
-            super(getApplicationContext(), R.layout.beacon_item);
-        }
-
-        @Override
-        public Beacon getItem(int position) {
-            return mBeaconList.get(position);
-        }
-
-        @Override
-        public int getCount() {
-            return mBeaconList.size();
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View item = null;
-            LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
-            item = inflater.inflate(R.layout.beacon_item, null);
-
-            TextView beaconId = (TextView) item.findViewById(R.id.beacon_id);
-            TextView beaconDistance = (TextView) item.findViewById(R.id.beacon_distance);
-            TextView distanceBucketText = (TextView) item.findViewById(R.id.bucket);
-
-            Beacon beacon = getItem(position);
-
-            DistanceBucket bucket = DistanceBucket.getDistanceBucketForDistance(beacon.getDistance());
-
-            if (beacon != null) {
-                beaconId.setText(beacon.getId1() + "");
-                beaconDistance.setText(beacon.getDistance() + "");
-                if (bucket != null)
-                    distanceBucketText.setText(bucket.toString());
-            }
-
-            return item;
-        }
-    }
 
     @Subscribe
     public void onBeaconFoundInRange(BeaconsFoundInRange b) {
         mBeaconList = b.getBeacons();
+        Log.e("Number of Beacons", Integer.toString(mBeaconList.size()));
+        //After  getting the beacons, populate them in the list.
         mAdapter.notifyDataSetChanged();
     }
 
@@ -139,7 +111,7 @@ public class MainActivity extends ActionBarActivity {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
 
-            if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
+            if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
                 int i = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
                 if (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
                         == BluetoothAdapter.STATE_OFF) {

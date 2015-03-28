@@ -1,8 +1,7 @@
-package com.karthikb351.mapable.Adapters;
+package com.karthikb351.mapable.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,13 +17,18 @@ import java.util.List;
 
 public class BeaconListAdapter extends RecyclerView.Adapter<BeaconListAdapter.ListItemViewHolder>{
 
-    private final Context context;
     private List<Beacon> beacons;
 
-    public BeaconListAdapter(Context context, List<Beacon> beacons){
-        this.context = context;
+    public BeaconListAdapter(List<Beacon> beacons) {
         this.beacons = beacons;
+    }
 
+    public List<Beacon> getBeacons() {
+        return beacons;
+    }
+
+    public void setBeacons(List<Beacon> beacons) {
+        this.beacons = beacons;
     }
 
     @Override

@@ -10,21 +10,16 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
-import com.karthikb351.mapable.Adapters.BeaconListAdapter;
+import com.karthikb351.mapable.adapters.BeaconListAdapter;
 import com.karthikb351.mapable.R;
 import com.karthikb351.mapable.bus.BusProvider;
 import com.karthikb351.mapable.bus.events.BeaconServiceState;
 import com.karthikb351.mapable.bus.events.BeaconsFoundInRange;
-import com.karthikb351.mapable.models.DistanceBucket;
 import com.karthikb351.mapable.service.BeaconService;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -54,7 +49,7 @@ public class MainActivity extends ActionBarActivity {
         mBeaconListView.setLayoutManager(llm);
 
         mBluetoothDisabledText = (TextView) findViewById(R.id.bluetooth_disabled_text);
-        mAdapter = new BeaconListAdapter(this.getApplicationContext(), mBeaconList);
+        mAdapter = new BeaconListAdapter(mBeaconList);
         mBeaconListView.setAdapter(mAdapter);
         checkBluetoothStatus();
 
@@ -102,8 +97,8 @@ public class MainActivity extends ActionBarActivity {
     @Subscribe
     public void onBeaconFoundInRange(BeaconsFoundInRange b) {
         mBeaconList = b.getBeacons();
-        Log.e("Number of Beacons", Integer.toString(mBeaconList.size()));
         //After  getting the beacons, populate them in the list.
+        mAdapter.setBeacons(mBeaconList);
         mAdapter.notifyDataSetChanged();
     }
 

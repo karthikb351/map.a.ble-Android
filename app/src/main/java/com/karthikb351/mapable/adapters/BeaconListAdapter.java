@@ -12,6 +12,7 @@ import com.karthikb351.mapable.models.DistanceBucket;
 
 import org.altbeacon.beacon.Beacon;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 
@@ -51,9 +52,11 @@ public class BeaconListAdapter extends RecyclerView.Adapter<BeaconListAdapter.Li
         Beacon beacon = beacons.get(position);
 
         Double beacon_distance = new Double(beacon.getDistance());
-        holder.distance.setText(beacon_distance.toString());
-        holder.distanceBucket.setText(DistanceBucket.getDistanceBucketForDistance(
-                beacon.getDistance()).toString());
+        holder.distance.setText(new DecimalFormat("#.###").format(beacon_distance).toString()+" meters");
+        DistanceBucket distanceBucket = DistanceBucket.getDistanceBucketForDistance(
+                beacon.getDistance());
+        holder.distanceBucket.setText(distanceBucket.toString());
+        holder.distanceBucket.setTextColor(distanceBucket.getmColor());
         holder.macAddress.setText(beacon.getBluetoothAddress());
     }
 

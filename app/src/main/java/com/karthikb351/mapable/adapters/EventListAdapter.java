@@ -29,6 +29,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.List
         return events.size();
     }
 
+    public void setEvent(List<Event> events){ this.events = events;}
     @Override
     public ListItemViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View itemView = LayoutInflater.from(viewGroup.getContext()).inflate(

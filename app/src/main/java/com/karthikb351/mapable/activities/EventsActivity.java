@@ -1,6 +1,7 @@
 package com.karthikb351.mapable.activities;
 
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.RecyclerView;
@@ -12,10 +13,11 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.karthikb351.mapable.R;
 import com.karthikb351.mapable.adapters.EventListAdapter;
+import com.karthikb351.mapable.models.Event;
 
-/**
- * Created by sreeram on 4/13/15.
- */
+import java.util.List;
+
+
 public class EventsActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -28,18 +30,18 @@ public class EventsActivity extends ActionBarActivity implements GoogleApiClient
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_events);
-        mEventListView = (RecyclerView)findViewById(R.id.events_list);
+        mEventListView = (RecyclerView) findViewById(R.id.events_list);
         mAdapter = new EventListAdapter();
         mEventListView.setAdapter(mAdapter);
     }
-
 
 
     //All Location related methods
     @Override
     public void onLocationChanged(Location location) {
         mDeviceLocation = location;
-        //Send a broadcast event to get beacons in range.
+        //Refresh nearby events.
+        //Write a async task to get nearby events.
     }
 
     @Override
@@ -68,7 +70,7 @@ public class EventsActivity extends ActionBarActivity implements GoogleApiClient
     }
 
     protected void startLocationUpdates(LocationRequest locationRequest) {
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,locationRequest, this);
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, this);
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -79,6 +81,21 @@ public class EventsActivity extends ActionBarActivity implements GoogleApiClient
                 .build();
     }
 
+    private class getEventsInBackground extends AsyncTask<Location, Integer, List<Event>> {
 
+        @Override
+        protected List<Event> doInBackground(Location... params) {
+            Location present_location = params[0];
+            //Server call to get events.
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(List<Event> events) {
+            super.onPostExecute(events);
+            mAdapter.setEvent(events);
+            mAdapter.notifyDataSetChanged();
+        }
+    }
 
 }

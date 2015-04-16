@@ -1,5 +1,6 @@
 package com.karthikb351.mapable.adapters;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,13 +9,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.karthikb351.mapable.R;
-import com.karthikb351.mapable.models.Building;
-import com.karthikb351.mapable.models.DistanceBucket;
+import com.karthikb351.mapable.activities.BeaconActivity;
 import com.karthikb351.mapable.models.Event;
 
-import org.altbeacon.beacon.Beacon;
-
-import java.text.DecimalFormat;
 import java.util.List;
 
 /**
@@ -23,6 +20,9 @@ import java.util.List;
 public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.ListItemViewHolder>{
 
     List<Event> events;
+
+    public EventListAdapter(){}
+
 
     @Override
     public int getItemCount() {
@@ -73,9 +73,10 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.List
 
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent();
+            Context context = v.getContext();
+            Intent intent = new Intent(context, BeaconActivity.class);
             intent.putExtra("title", event.name);
-
+            context.startActivity(intent);
         }
     }
 }

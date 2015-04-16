@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends ActionBarActivity {
+public class BeaconActivity extends ActionBarActivity {
 
     Mapable app;
     List<Beacon> mBeaconList = new ArrayList<>();

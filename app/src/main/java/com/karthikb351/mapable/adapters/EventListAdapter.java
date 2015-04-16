@@ -21,8 +21,9 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.List
 
     List<Event> events;
 
-    public EventListAdapter(){}
-
+    public EventListAdapter(List<Event> events){
+        this.events = events;
+    }
 
     @Override
     public int getItemCount() {
@@ -45,7 +46,6 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.List
         holder.setItems(event);
 
     }
-
 
     public final static class ListItemViewHolder extends  RecyclerView.ViewHolder implements View.OnClickListener{
 

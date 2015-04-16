@@ -4,7 +4,9 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -15,7 +17,10 @@ import com.karthikb351.mapable.R;
 import com.karthikb351.mapable.adapters.EventListAdapter;
 import com.karthikb351.mapable.models.Event;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import timber.log.Timber;
 
 
 public class EventsActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks,
@@ -25,21 +30,28 @@ public class EventsActivity extends ActionBarActivity implements GoogleApiClient
     private GoogleApiClient mGoogleApiClient;
     EventListAdapter mAdapter;
     RecyclerView mEventListView;
+    List<Event> events;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_events);
+        events = new ArrayList<Event>();
         mEventListView = (RecyclerView) findViewById(R.id.events_list);
-        mAdapter = new EventListAdapter();
+        mAdapter = new EventListAdapter(events);
         mEventListView.setAdapter(mAdapter);
-    }
+        LinearLayoutManager llm = new LinearLayoutManager(this);
+        llm.setOrientation(LinearLayoutManager.VERTICAL);
+        mEventListView.setLayoutManager(llm);
 
+    }
 
     //All Location related methods
     @Override
     public void onLocationChanged(Location location) {
         mDeviceLocation = location;
+        Timber.d("Latitude", location.toString());
+        Timber.d("Latitude", location.toString());
         //Refresh nearby events.
         //Write a async task to get nearby events.
     }
@@ -73,6 +85,7 @@ public class EventsActivity extends ActionBarActivity implements GoogleApiClient
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, this);
     }
 
+
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -80,6 +93,7 @@ public class EventsActivity extends ActionBarActivity implements GoogleApiClient
                 .addApi(LocationServices.API)
                 .build();
     }
+
 
     private class getEventsInBackground extends AsyncTask<Location, Integer, List<Event>> {
 
@@ -97,5 +111,4 @@ public class EventsActivity extends ActionBarActivity implements GoogleApiClient
             mAdapter.notifyDataSetChanged();
         }
     }
-
 }

@@ -64,7 +64,6 @@ public class BeaconActivity extends ActionBarActivity {
         mBluetoothDisabledText = (TextView) findViewById(R.id.bluetooth_disabled_text);
         mAdapter = new BeaconListAdapter(mBeaconList);
         mBeaconListView.setAdapter(mAdapter);
-        
         checkBluetoothStatus();
 
     }

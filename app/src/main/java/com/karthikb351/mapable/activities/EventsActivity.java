@@ -3,10 +3,12 @@ package com.karthikb351.mapable.activities;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -24,13 +26,15 @@ import timber.log.Timber;
 
 
 public class EventsActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener, LocationListener {
+        GoogleApiClient.OnConnectionFailedListener, LocationListener, SwipeRefreshLayout.OnRefreshListener {
 
     Location mDeviceLocation;
     private GoogleApiClient mGoogleApiClient;
     EventListAdapter mAdapter;
     RecyclerView mEventListView;
     List<Event> events;
+    SwipeRefreshLayout mSwipeRefreshLayout;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +47,8 @@ public class EventsActivity extends ActionBarActivity implements GoogleApiClient
         LinearLayoutManager llm = new LinearLayoutManager(this);
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         mEventListView.setLayoutManager(llm);
-
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.eventSwipeLayout);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
     }
 
     //All Location related methods
@@ -101,14 +106,22 @@ public class EventsActivity extends ActionBarActivity implements GoogleApiClient
         protected List<Event> doInBackground(Location... params) {
             Location present_location = params[0];
             //Server call to get events.
-            return null;
+            List<Event> events = new ArrayList<Event>();
+            return events;
         }
 
         @Override
         protected void onPostExecute(List<Event> events) {
             super.onPostExecute(events);
+
             mAdapter.setEvent(events);
             mAdapter.notifyDataSetChanged();
+            mSwipeRefreshLayout.setRefreshing(false);
         }
+    }
+
+    @Override
+    public void onRefresh() {
+        new getEventsInBackground().execute(mDeviceLocation);
     }
 }

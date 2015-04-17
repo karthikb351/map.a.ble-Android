@@ -17,11 +17,13 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.karthikb351.mapable.R;
 import com.karthikb351.mapable.adapters.EventListAdapter;
+import com.karthikb351.mapable.api.EventAPI;
 import com.karthikb351.mapable.models.Event;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit.RestAdapter;
 import timber.log.Timber;
 
 
@@ -35,11 +37,22 @@ public class EventsActivity extends ActionBarActivity implements GoogleApiClient
     List<Event> events;
     SwipeRefreshLayout mSwipeRefreshLayout;
 
+    private EventAPI apiService;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_events);
+        initializeUI();
+        RestAdapter restAdapter = new RestAdapter.Builder()
+                .setEndpoint("https://api.github.com")
+                .build();
+
+        apiService = restAdapter.create(EventAPI.class);
+    }
+
+    private void initializeUI(){
         events = new ArrayList<Event>();
         mEventListView = (RecyclerView) findViewById(R.id.events_list);
         mAdapter = new EventListAdapter(events);
@@ -68,7 +81,8 @@ public class EventsActivity extends ActionBarActivity implements GoogleApiClient
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-
+        Toast.makeText(getApplicationContext(), "Could Not Get Location", Toast.LENGTH_SHORT).show();
+        Log.d("Connection Result", connectionResult.toString());
     }
 
     protected LocationRequest createLocationRequest() {
@@ -101,7 +115,9 @@ public class EventsActivity extends ActionBarActivity implements GoogleApiClient
 
 
     private class getEventsInBackground extends AsyncTask<Location, Integer, List<Event>> {
-
+        /*
+        Async Task to get events in the nearby location of the user.
+         */
         @Override
         protected List<Event> doInBackground(Location... params) {
             Location present_location = params[0];

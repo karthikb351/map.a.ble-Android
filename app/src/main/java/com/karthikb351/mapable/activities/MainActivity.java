@@ -60,13 +60,11 @@ public class MainActivity extends ActionBarActivity {
         super.onStart();
         mBus.register(this);
         registerReceiver(mReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
-        startBeaconService();
     }
 
    @Override
     protected void onStop() {
         super.onStop();
-        stopBeaconService();
         unregisterReceiver(mReceiver);
         mBus.unregister(this);
     }
@@ -75,6 +73,12 @@ public class MainActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        MenuItem toggleItem = menu.findItem(R.id.action_toggle_service);
+        if (BeaconService.isInstanceCreated()) {
+            toggleItem.setTitle("Stop Service");
+        } else {
+            toggleItem.setTitle("Start Service");
+        }
         return true;
     }
 
@@ -87,6 +91,16 @@ public class MainActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        }
+
+        if (id == R.id.action_toggle_service) {
+            if (BeaconService.isInstanceCreated()) {
+                stopBeaconService();
+            } else {
+                startBeaconService();
+            }
+            invalidateOptionsMenu();
             return true;
         }
 
@@ -134,7 +148,7 @@ public class MainActivity extends ActionBarActivity {
     private void handleBluetoothDisabled() {
         stopBeaconRanging();
         mBluetoothDisabledText.setVisibility(View.VISIBLE);
-        mBluetoothDisabledText.setText("Bluetooth is currently disabled. PLease turn it on to start ranging");
+        mBluetoothDisabledText.setText("Bluetooth is currently disabled. Please turn it on to start ranging");
         mBeaconListView.setVisibility(View.GONE);
     }
 
@@ -148,6 +162,8 @@ public class MainActivity extends ActionBarActivity {
 
     private void stopBeaconService() {
         stopService(new Intent(this, BeaconService.class));
+        mBeaconList.clear();
+        mAdapter.notifyDataSetChanged();
     }
 
     private void stopBeaconRanging() {

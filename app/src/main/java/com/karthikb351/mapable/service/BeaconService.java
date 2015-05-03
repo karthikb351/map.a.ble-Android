@@ -39,6 +39,12 @@ public class BeaconService extends Service {
     private Bus mBus = BusProvider.getInstance();
     Handler handler;
 
+    private static BeaconService instance = null;
+
+    public static boolean isInstanceCreated() {
+        return instance != null;
+    }
+
     public BeaconService() {
 
     }
@@ -46,6 +52,7 @@ public class BeaconService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = this;
         mBus.register(this);
         Timber.tag("BeaconService");
         Timber.d("Service created");
@@ -144,6 +151,7 @@ public class BeaconService extends Service {
 
     @Override
     public void onDestroy() {
+        instance = null;
         super.onDestroy();
         beaconManager.unbind(mConsumer);
         mBus.unregister(this);

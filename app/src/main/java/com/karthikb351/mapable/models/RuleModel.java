@@ -1,11 +1,13 @@
 package com.karthikb351.mapable.models;
 
+import com.orm.SugarRecord;
+
 import java.util.List;
 
 /**
  * Created by karthikbalakrishnan on 04/05/15.
  */
-public class RuleModel {
+public class RuleModel extends SugarRecord<RuleModel> {
 
     List<BeaconModel> beaconList;
     List<DistanceBucket> distanceBuckets;

@@ -9,6 +9,7 @@ public class APIRuleModel {
 
     List<APISimpleRule> ruleList;
     String actionId;
+    int priority;
 
     public List<APISimpleRule> getRuleList() {
         return ruleList;
@@ -24,5 +25,13 @@ public class APIRuleModel {
 
     public void setActionId(String actionId) {
         this.actionId = actionId;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 }

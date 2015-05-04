@@ -85,7 +85,11 @@ public class API {
 
                     for(APIRuleModel r: rules) {
                         RuleModel rule = new RuleModel();
+
                         rule.setAction(ActionModel.find(ActionModel.class, "id = ?", r.getActionId()).get(0));
+
+                        rule.setPriority(r.getPriority());
+
                         List<BeaconModel> beaconModels = new ArrayList<BeaconModel>();
                         List<DistanceBucket> distanceBuckets = new ArrayList<DistanceBucket>();
                         for(APISimpleRule sr:r.getRuleList()) {
@@ -104,6 +108,7 @@ public class API {
                         }
                         rule.setBeaconList(beaconModels);
                         rule.setDistanceBuckets(distanceBuckets);
+
                         rule.save();
 
                     }

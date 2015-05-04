@@ -12,6 +12,7 @@ public class RuleModel extends SugarRecord<RuleModel> {
     List<BeaconModel> beaconList;
     List<DistanceBucket> distanceBuckets;
     ActionModel action;
+    int priority;
 
     public List<BeaconModel> getBeaconList() {
         return beaconList;
@@ -35,5 +36,13 @@ public class RuleModel extends SugarRecord<RuleModel> {
 
     public void setAction(ActionModel action) {
         this.action = action;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 }

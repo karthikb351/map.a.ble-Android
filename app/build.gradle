@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.karthikb351.mapable"
-        minSdkVersion 8
+        minSdkVersion 9
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"
@@ -29,4 +29,5 @@ dependencies {
     compile 'org.parceler:parceler:0.2.15'
     compile 'org.parceler:parceler-api:0.2.15'
     compile 'com.jakewharton.timber:timber:2.7.1'
+    compile 'com.github.satyan:sugar:1.3'
 }

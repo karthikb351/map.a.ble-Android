@@ -33,6 +33,7 @@ import com.karthikb351.mapable.models.ActionModel;
 import com.karthikb351.mapable.models.BeaconModel;
 import com.karthikb351.mapable.models.DistanceBucket;
 import com.karthikb351.mapable.models.RuleModel;
+import com.karthikb351.mapable.models.SimpleRuleModel;
 import com.karthikb351.mapable.service.BeaconService;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -217,25 +218,12 @@ public class MainActivity extends ActionBarActivity {
                         rule.setAction(ActionModel.find(ActionModel.class, "action_id = ?", String.valueOf(r.getActionId())).get(0));
 
                         rule.setPriority(r.getPriority());
-
-                        List<BeaconModel> beaconModels = new ArrayList<BeaconModel>();
-                        List<DistanceBucket> distanceBuckets = new ArrayList<DistanceBucket>();
                         for(APISimpleRule sr:r.getRuleList()) {
-                            beaconModels.add(BeaconModel.find(BeaconModel.class,"uuid = ?", sr.getBeaconUuid()).get(0));
-                            switch (sr.getDistanceBucket()){
-                                case 0:
-                                    distanceBuckets.add(DistanceBucket.NEXT_TO);
-                                    break;
-                                case 1:
-                                    distanceBuckets.add(DistanceBucket.NEAR);
-                                    break;
-                                case 2:
-                                    distanceBuckets.add(DistanceBucket.FAR);
-                                    break;
-                            }
+                            SimpleRuleModel simpleRule = new SimpleRuleModel();
+                            simpleRule.setBeacon(BeaconModel.find(BeaconModel.class,"uuid = ?", sr.getBeaconUuid()).get(0));
+                            simpleRule.setDistanceBucket(sr.getDistanceBucket());
+                            simpleRule.save();
                         }
-                        rule.setBeaconList(beaconModels);
-                        rule.setDistanceBuckets(distanceBuckets);
 
                         rule.save();
 

@@ -24,6 +24,20 @@ public enum DistanceBucket {
         this.mColor = mColor;
     }
 
+    public static DistanceBucket getDistanceBucketFromType(int type) {
+        switch (type) {
+            case 0:
+                return DistanceBucket.NEXT_TO;
+            case 1:
+                return DistanceBucket.NEAR;
+            case 2:
+                return DistanceBucket.FAR;
+        }
+
+        return null;
+
+    }
+
     public static DistanceBucket getDistanceBucketForDistance(double distanceFromBeaconInMeters){
         if(distanceFromBeaconInMeters<0.0){
             return null;

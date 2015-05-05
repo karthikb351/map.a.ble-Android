@@ -1,5 +1,6 @@
 package com.karthikb351.mapable.models;
 
+import com.google.gson.annotations.SerializedName;
 import com.orm.SugarRecord;
 
 /**
@@ -7,8 +8,11 @@ import com.orm.SugarRecord;
  */
 public class BeaconModel extends SugarRecord<BeaconModel> {
 
+    @SerializedName("nickname")
     String nickname;
+    @SerializedName("uuid")
     String uuid;
+    @SerializedName("description")
     String description;
 
     public String getNickname() {

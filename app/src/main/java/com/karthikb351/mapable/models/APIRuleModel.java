@@ -1,5 +1,7 @@
 package com.karthikb351.mapable.models;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 /**
@@ -7,9 +9,22 @@ import java.util.List;
  */
 public class APIRuleModel {
 
+    @SerializedName("rule_id")
+    int ruleId;
+    @SerializedName("rules")
     List<APISimpleRule> ruleList;
-    String actionId;
+    @SerializedName("action_id")
+    int actionId;
+    @SerializedName("priority")
     int priority;
+
+    public int getRuleId() {
+        return ruleId;
+    }
+
+    public void setRuleId(int ruleId) {
+        this.ruleId = ruleId;
+    }
 
     public List<APISimpleRule> getRuleList() {
         return ruleList;
@@ -19,11 +34,11 @@ public class APIRuleModel {
         this.ruleList = ruleList;
     }
 
-    public String getActionId() {
+    public int getActionId() {
         return actionId;
     }
 
-    public void setActionId(String actionId) {
+    public void setActionId(int actionId) {
         this.actionId = actionId;
     }
 

@@ -1,5 +1,6 @@
 package com.karthikb351.mapable.models;
 
+import com.google.gson.annotations.SerializedName;
 import com.orm.SugarRecord;
 
 /**
@@ -7,14 +8,26 @@ import com.orm.SugarRecord;
  */
 public class ActionModel extends SugarRecord<ActionModel> {
 
+    @SerializedName("action_id")
+    String actionId;
+    @SerializedName("description")
     String description;
     // 0 - notification and payload is URL
     // 1 - notification and payload is text
     // 2 - contextual data and payload is text
 
+    @SerializedName("type")
     int type;
+    @SerializedName("payload")
     String payload;
 
+    public String getActionId() {
+        return actionId;
+    }
+
+    public void setActionId(String actionId) {
+        this.actionId = actionId;
+    }
 
     public String getDescription() {
         return description;

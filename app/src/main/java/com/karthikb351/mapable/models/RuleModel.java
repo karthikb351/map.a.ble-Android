@@ -2,6 +2,8 @@ package com.karthikb351.mapable.models;
 
 import com.orm.SugarRecord;
 
+import org.altbeacon.beacon.Beacon;
+
 import java.util.List;
 
 /**
@@ -9,40 +11,65 @@ import java.util.List;
  */
 public class RuleModel extends SugarRecord<RuleModel> {
 
-    List<BeaconModel> beaconList;
-    List<DistanceBucket> distanceBuckets;
-    ActionModel action;
-    int priority;
+    List<BeaconModel> mBeaconList;
+    List<DistanceBucket> mDistanceBucketList;
+    ActionModel mAction;
+    int mPriority;
 
-    public List<BeaconModel> getBeaconList() {
-        return beaconList;
+    public RuleModel() {
     }
 
-    public void setBeaconList(List<BeaconModel> beaconList) {
-        this.beaconList = beaconList;
+    public List<BeaconModel> getBeaconList() {
+        return mBeaconList;
+    }
+
+    public void setBeaconList(List<BeaconModel> mBeaconList) {
+        this.mBeaconList = mBeaconList;
     }
 
     public List<DistanceBucket> getDistanceBuckets() {
-        return distanceBuckets;
+        return mDistanceBucketList;
     }
 
     public void setDistanceBuckets(List<DistanceBucket> distanceBuckets) {
-        this.distanceBuckets = distanceBuckets;
+        this.mDistanceBucketList = distanceBuckets;
     }
 
     public ActionModel getAction() {
-        return action;
+        return mAction;
     }
 
     public void setAction(ActionModel action) {
-        this.action = action;
+        this.mAction = action;
     }
 
     public int getPriority() {
-        return priority;
+        return mPriority;
     }
 
-    public void setPriority(int priority) {
-        this.priority = priority;
+    public void setPriority(int mPriority) {
+        this.mPriority = mPriority;
+    }
+
+    public boolean isRuleSatisfied(List<Beacon> beaconList) {
+        boolean isRuleSatisfied = true;
+
+        for (int i = 0; i < mBeaconList.size(); i++) {
+            BeaconModel beaconModel = mBeaconList.get(i);
+            DistanceBucket distanceBucket = mDistanceBucketList.get(i);
+            boolean isBeaconPresent = false;
+            for (Beacon beacon : beaconList) {
+                if (beacon.getBluetoothAddress().equals(beaconModel.getUuid()) && distanceBucket.equals(DistanceBucket.getDistanceBucketForDistance(beacon.getDistance()))) {
+                    isBeaconPresent = true;
+                    break;
+                }
+            }
+            if (!isBeaconPresent) {
+                isRuleSatisfied = false;
+                break;
+            }
+        }
+
+        return isRuleSatisfied;
     }
 }

@@ -15,6 +15,8 @@ import android.os.RemoteException;
 import com.karthikb351.mapable.bus.BusProvider;
 import com.karthikb351.mapable.bus.events.BeaconServiceState;
 import com.karthikb351.mapable.bus.events.BeaconsFoundInRange;
+import com.karthikb351.mapable.bus.events.BeaconsSatisfiedRules;
+import com.karthikb351.mapable.models.RuleModel;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -26,7 +28,9 @@ import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import timber.log.Timber;
 
@@ -123,6 +127,27 @@ public class BeaconService extends Service {
                             @Override
                             public void run() {
                                 mBus.post(new BeaconsFoundInRange(new ArrayList<Beacon>(beacons)));
+                            }
+                        });
+                    }
+                    ArrayList<Beacon> allBeacons = new ArrayList<Beacon>(beacons);
+                    final ArrayList<RuleModel> beaconsSatisfyingRules = new ArrayList<RuleModel>();
+
+                    List<RuleModel> allRules = RuleModel.listAll(RuleModel.class);
+
+                    if(allRules!=null) {
+                        for (RuleModel ruleModel : allRules) {
+                            if (ruleModel.isRuleSatisfied(allBeacons)) {
+                                beaconsSatisfyingRules.add(ruleModel);
+                            }
+                        }
+                    }
+
+                    if (beaconsSatisfyingRules.size() > 0) {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                mBus.post(new BeaconsSatisfiedRules(beaconsSatisfyingRules));
                             }
                         });
                     }

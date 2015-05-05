@@ -51,8 +51,8 @@ public class BeaconListAdapter extends RecyclerView.Adapter<BeaconListAdapter.Li
     public void onBindViewHolder(ListItemViewHolder holder, int position) {
         Beacon beacon = beacons.get(position);
 
-        Double beacon_distance = new Double(beacon.getDistance());
-        holder.distance.setText(new DecimalFormat("#.###").format(beacon_distance).toString()+" meters");
+        Double beaconDistance = new Double(beacon.getDistance());
+        holder.distance.setText(new DecimalFormat("#.###").format(beaconDistance).toString()+" meters");
         DistanceBucket distanceBucket = DistanceBucket.getDistanceBucketForDistance(
                 beacon.getDistance());
         holder.distanceBucket.setText(distanceBucket.toString());

@@ -7,6 +7,7 @@ import android.content.ServiceConnection;
 import com.karthikb351.mapable.bus.BusProvider;
 import com.karthikb351.mapable.bus.events.BeaconsFoundInRange;
 import com.karthikb351.mapable.service.BeaconService;
+import com.orm.SugarApp;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -17,7 +18,7 @@ import timber.log.Timber;
 /**
  * Created by karthikbalakrishnan on 10/03/15.
  */
-public class Mapable extends Application {
+public class Mapable extends SugarApp {
     private Bus mBus = BusProvider.getInstance();
 
     @Override

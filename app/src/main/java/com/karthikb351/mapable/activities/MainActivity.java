@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,10 +14,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewParent;
 import android.widget.TextView;
 
 import com.karthikb351.mapable.adapters.BeaconListAdapter;
 import com.karthikb351.mapable.R;
+import com.karthikb351.mapable.adapters.MainActivityPagerAdapter;
 import com.karthikb351.mapable.bus.BusProvider;
 import com.karthikb351.mapable.bus.events.BeaconServiceState;
 import com.karthikb351.mapable.bus.events.BeaconsFoundInRange;
@@ -32,25 +35,18 @@ import java.util.List;
 
 public class MainActivity extends ActionBarActivity {
 
-    List<Beacon> mBeaconList = new ArrayList<>();
-    BeaconListAdapter mAdapter;
-    RecyclerView mBeaconListView;
     TextView mBluetoothDisabledText;
     private Bus mBus = BusProvider.getInstance();
+    ViewPager mViewPager;
+    MainActivityPagerAdapter mainActivityPagerAdapter;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mBeaconListView = (RecyclerView) findViewById(R.id.beacons_list);
-        LinearLayoutManager llm = new LinearLayoutManager(this);
-        llm.setOrientation(LinearLayoutManager.VERTICAL);
-        mBeaconListView.setLayoutManager(llm);
-
+        mViewPager = (ViewPager) findViewById(R.id.vp_main);
         mBluetoothDisabledText = (TextView) findViewById(R.id.bluetooth_disabled_text);
-        mAdapter = new BeaconListAdapter(mBeaconList);
-        mBeaconListView.setAdapter(mAdapter);
         checkBluetoothStatus();
 
     }
@@ -62,11 +58,11 @@ public class MainActivity extends ActionBarActivity {
         registerReceiver(mReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
     }
 
-   @Override
+    @Override
     protected void onStop() {
         super.onStop();
+        mBus.register(this);
         unregisterReceiver(mReceiver);
-        mBus.unregister(this);
     }
 
     @Override
@@ -108,14 +104,6 @@ public class MainActivity extends ActionBarActivity {
     }
 
 
-    @Subscribe
-    public void onBeaconFoundInRange(BeaconsFoundInRange b) {
-        mBeaconList = b.getBeacons();
-        //After  getting the beacons, populate them in the list.
-        mAdapter.setBeacons(mBeaconList);
-        mAdapter.notifyDataSetChanged();
-    }
-
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -127,9 +115,10 @@ public class MainActivity extends ActionBarActivity {
                     handleBluetoothDisabled();
                 } else if (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
                         == BluetoothAdapter.STATE_ON) {
-                    mBeaconListView.setVisibility(View.VISIBLE);
+                    mViewPager.setVisibility(View.VISIBLE);
                     mBluetoothDisabledText.setVisibility(View.GONE);
-                    mAdapter.notifyDataSetChanged();
+                    mainActivityPagerAdapter = new MainActivityPagerAdapter(getSupportFragmentManager());
+                    mViewPager.setAdapter(mainActivityPagerAdapter);
                 }
                 // Bluetooth is disconnected, do handling here
             }
@@ -147,9 +136,9 @@ public class MainActivity extends ActionBarActivity {
 
     private void handleBluetoothDisabled() {
         stopBeaconRanging();
+        mViewPager.setVisibility(View.GONE);
         mBluetoothDisabledText.setVisibility(View.VISIBLE);
         mBluetoothDisabledText.setText("Bluetooth is currently disabled. Please turn it on to start ranging");
-        mBeaconListView.setVisibility(View.GONE);
     }
 
     private void startBeaconRanging() {
@@ -162,8 +151,6 @@ public class MainActivity extends ActionBarActivity {
 
     private void stopBeaconService() {
         stopService(new Intent(this, BeaconService.class));
-        mBeaconList.clear();
-        mAdapter.notifyDataSetChanged();
     }
 
     private void stopBeaconRanging() {

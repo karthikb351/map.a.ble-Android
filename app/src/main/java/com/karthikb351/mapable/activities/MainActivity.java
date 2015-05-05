@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -18,19 +19,35 @@ import android.view.ViewParent;
 import android.widget.TextView;
 
 import com.astuetz.PagerSlidingTabStrip;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.karthikb351.mapable.adapters.BeaconListAdapter;
 import com.karthikb351.mapable.R;
 import com.karthikb351.mapable.adapters.MainActivityPagerAdapter;
 import com.karthikb351.mapable.bus.BusProvider;
 import com.karthikb351.mapable.bus.events.BeaconServiceState;
 import com.karthikb351.mapable.bus.events.BeaconsFoundInRange;
+import com.karthikb351.mapable.models.APIRuleModel;
+import com.karthikb351.mapable.models.APISimpleRule;
+import com.karthikb351.mapable.models.ActionModel;
+import com.karthikb351.mapable.models.BeaconModel;
+import com.karthikb351.mapable.models.DistanceBucket;
+import com.karthikb351.mapable.models.RuleModel;
 import com.karthikb351.mapable.service.BeaconService;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.altbeacon.beacon.Beacon;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONObject;
 
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -163,6 +180,89 @@ public class MainActivity extends ActionBarActivity {
 
     private void stopBeaconRanging() {
         mBus.post(new BeaconServiceState(false));
+    }
+
+    private class RefreshDataTask extends AsyncTask<Void, Void, String> {
+
+        protected String doInBackground(Void... urls) {
+
+            try {
+                HttpClient client = new DefaultHttpClient();
+                URI website = new URI("https://mapable-dev.appspot.com/api/all");
+                HttpGet request = new HttpGet();
+                request.setURI(website);
+                HttpResponse response = client.execute(request);
+
+                GsonBuilder gsonBuilder = new GsonBuilder();
+                Gson gson = gsonBuilder.create();
+                JSONObject obj = null;
+                try {
+                    obj = new JSONObject(response.toString());
+                    List<ActionModel> actions = Arrays.asList(gson.fromJson(obj.optString("actions", "[]"), ActionModel[].class));
+                    List<BeaconModel> beacons = Arrays.asList(gson.fromJson(obj.optString("actions", "[]"), BeaconModel[].class));
+                    List<APIRuleModel> rules = Arrays.asList(gson.fromJson(obj.optString("actions", "[]"), APIRuleModel[].class));
+
+                    ActionModel.deleteAll(ActionModel.class);
+                    BeaconModel.deleteAll(BeaconModel.class);
+                    RuleModel.deleteAll(RuleModel.class);
+
+                    for(ActionModel a:actions)
+                        a.save();
+                    for(BeaconModel b:beacons)
+                        b.save();
+
+                    for(APIRuleModel r: rules) {
+                        RuleModel rule = new RuleModel();
+
+                        rule.setAction(ActionModel.find(ActionModel.class, "id = ?", r.getActionId()).get(0));
+
+                        rule.setPriority(r.getPriority());
+
+                        List<BeaconModel> beaconModels = new ArrayList<BeaconModel>();
+                        List<DistanceBucket> distanceBuckets = new ArrayList<DistanceBucket>();
+                        for(APISimpleRule sr:r.getRuleList()) {
+                            beaconModels.add(BeaconModel.find(BeaconModel.class,"id = ?", sr.getBeaconUuid()).get(0));
+                            switch (sr.getDistanceBucket()){
+                                case 0:
+                                    distanceBuckets.add(DistanceBucket.NEXT_TO);
+                                    break;
+                                case 1:
+                                    distanceBuckets.add(DistanceBucket.NEAR);
+                                    break;
+                                case 2:
+                                    distanceBuckets.add(DistanceBucket.FAR);
+                                    break;
+                            }
+                        }
+                        rule.setBeaconList(beaconModels);
+                        rule.setDistanceBuckets(distanceBuckets);
+
+                        rule.save();
+
+                    }
+
+
+                    return "Success";
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return "Error";
+                }
+            } finally {
+                return "Error";
+            }
+
+        }
+
+        protected void onPostExecute(String result) {
+            if(result.equals("Success")) {
+
+            }
+            else {
+
+            }
+
+        }
     }
 
 }

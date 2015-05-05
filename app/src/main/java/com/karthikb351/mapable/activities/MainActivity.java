@@ -188,7 +188,7 @@ public class MainActivity extends ActionBarActivity {
 
             try {
                 HttpClient client = new DefaultHttpClient();
-                URI website = new URI("https://mapable-dev.appspot.com/api/all");
+                URI website = new URI("https://mapable-dev.appspot.com/api/sample");
                 HttpGet request = new HttpGet();
                 request.setURI(website);
                 HttpResponse response = client.execute(request);

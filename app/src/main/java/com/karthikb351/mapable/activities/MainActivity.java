@@ -199,8 +199,8 @@ public class MainActivity extends ActionBarActivity {
                 try {
                     obj = new JSONObject(response.toString());
                     List<ActionModel> actions = Arrays.asList(gson.fromJson(obj.optString("actions", "[]"), ActionModel[].class));
-                    List<BeaconModel> beacons = Arrays.asList(gson.fromJson(obj.optString("actions", "[]"), BeaconModel[].class));
-                    List<APIRuleModel> rules = Arrays.asList(gson.fromJson(obj.optString("actions", "[]"), APIRuleModel[].class));
+                    List<BeaconModel> beacons = Arrays.asList(gson.fromJson(obj.optString("beacons", "[]"), BeaconModel[].class));
+                    List<APIRuleModel> rules = Arrays.asList(gson.fromJson(obj.optString("rules", "[]"), APIRuleModel[].class));
 
                     ActionModel.deleteAll(ActionModel.class);
                     BeaconModel.deleteAll(BeaconModel.class);
@@ -214,14 +214,14 @@ public class MainActivity extends ActionBarActivity {
                     for(APIRuleModel r: rules) {
                         RuleModel rule = new RuleModel();
 
-                        rule.setAction(ActionModel.find(ActionModel.class, "id = ?", r.getActionId()).get(0));
+                        rule.setAction(ActionModel.find(ActionModel.class, "action_id = ?", String.valueOf(r.getActionId())).get(0));
 
                         rule.setPriority(r.getPriority());
 
                         List<BeaconModel> beaconModels = new ArrayList<BeaconModel>();
                         List<DistanceBucket> distanceBuckets = new ArrayList<DistanceBucket>();
                         for(APISimpleRule sr:r.getRuleList()) {
-                            beaconModels.add(BeaconModel.find(BeaconModel.class,"id = ?", sr.getBeaconUuid()).get(0));
+                            beaconModels.add(BeaconModel.find(BeaconModel.class,"uuid = ?", sr.getBeaconUuid()).get(0));
                             switch (sr.getDistanceBucket()){
                                 case 0:
                                     distanceBuckets.add(DistanceBucket.NEXT_TO);

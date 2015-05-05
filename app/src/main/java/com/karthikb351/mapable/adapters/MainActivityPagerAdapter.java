@@ -3,6 +3,7 @@ package com.karthikb351.mapable.adapters;
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.karthikb351.mapable.fragments.DetectedBeaconsFragment;
@@ -14,7 +15,7 @@ import java.util.List;
 /**
  * Created by Nikhil on 5/4/15.
  */
-public class MainActivityPagerAdapter extends FragmentStatePagerAdapter {
+public class MainActivityPagerAdapter extends FragmentPagerAdapter {
 
     Context mContext;
 
@@ -37,6 +38,23 @@ public class MainActivityPagerAdapter extends FragmentStatePagerAdapter {
         }
 
         return fragment;
+    }
+
+
+    @Override
+    public CharSequence getPageTitle(int position) {
+        String title = "";
+
+        switch (position) {
+            case 0:
+                title = "Actions";
+                break;
+            case 1:
+                title = "Beacons";
+                break;
+        }
+
+        return title;
     }
 
     @Override

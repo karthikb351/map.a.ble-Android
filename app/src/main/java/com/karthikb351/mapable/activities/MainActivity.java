@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewParent;
 import android.widget.TextView;
 
+import com.astuetz.PagerSlidingTabStrip;
 import com.karthikb351.mapable.adapters.BeaconListAdapter;
 import com.karthikb351.mapable.R;
 import com.karthikb351.mapable.adapters.MainActivityPagerAdapter;
@@ -46,6 +47,11 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mViewPager = (ViewPager) findViewById(R.id.vp_main);
+        PagerSlidingTabStrip tabStrip = (PagerSlidingTabStrip) findViewById(R.id.vp_tab);
+        mainActivityPagerAdapter = new MainActivityPagerAdapter(getSupportFragmentManager());
+        mViewPager.setAdapter(mainActivityPagerAdapter);
+        tabStrip.setShouldExpand(true);
+        tabStrip.setViewPager(mViewPager);
         mBluetoothDisabledText = (TextView) findViewById(R.id.bluetooth_disabled_text);
         checkBluetoothStatus();
 
@@ -117,8 +123,6 @@ public class MainActivity extends ActionBarActivity {
                         == BluetoothAdapter.STATE_ON) {
                     mViewPager.setVisibility(View.VISIBLE);
                     mBluetoothDisabledText.setVisibility(View.GONE);
-                    mainActivityPagerAdapter = new MainActivityPagerAdapter(getSupportFragmentManager());
-                    mViewPager.setAdapter(mainActivityPagerAdapter);
                 }
                 // Bluetooth is disconnected, do handling here
             }
@@ -131,6 +135,10 @@ public class MainActivity extends ActionBarActivity {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
             handleBluetoothDisabled();
+        }
+        else if (mBluetoothAdapter == null && mBluetoothAdapter.isEnabled()) {
+            mViewPager.setVisibility(View.VISIBLE);
+            mBluetoothDisabledText.setVisibility(View.GONE);
         }
     }
 
